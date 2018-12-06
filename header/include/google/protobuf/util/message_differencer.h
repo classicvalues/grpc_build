@@ -60,7 +60,7 @@ class FieldDescriptor;
 namespace io {
 class ZeroCopyOutputStream;
 class Printer;
-}  // namespace io
+}
 
 namespace util {
 
@@ -533,12 +533,6 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
     report_moves_ = report_moves;
   }
 
-  // Tells the differencer whether or not to report ignored values. This method
-  // must be called before Compare. The default for a new differencer is true.
-  void set_report_ignores(bool report_ignores) {
-    report_ignores_ = report_ignores;
-  }
-
   // Sets the scope of the comparison (as defined in the Scope enumeration
   // above) that is used by this differencer when determining which fields to
   // compare between the messages.
@@ -603,7 +597,7 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
    public:
     explicit StreamReporter(io::ZeroCopyOutputStream* output);
     explicit StreamReporter(io::Printer* printer);  // delimiter '$'
-    ~StreamReporter() override;
+    virtual ~StreamReporter();
 
     // When set to true, the stream reporter will also output aggregates nodes
     // (i.e. messages and groups) whose subfields have been modified. When
@@ -613,28 +607,32 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
     }
 
     // The following are implementations of the methods described above.
+    virtual void ReportAdded(const Message& message1, const Message& message2,
+                             const std::vector<SpecificField>& field_path);
 
-    void ReportAdded(const Message& message1, const Message& message2,
-                     const std::vector<SpecificField>& field_path) override;
+    virtual void ReportDeleted(const Message& message1,
+                               const Message& message2,
+                               const std::vector<SpecificField>& field_path);
 
-    void ReportDeleted(const Message& message1, const Message& message2,
-                       const std::vector<SpecificField>& field_path) override;
+    virtual void ReportModified(const Message& message1,
+                                const Message& message2,
+                                const std::vector<SpecificField>& field_path);
 
-    void ReportModified(const Message& message1, const Message& message2,
-                        const std::vector<SpecificField>& field_path) override;
+    virtual void ReportMoved(const Message& message1,
+                             const Message& message2,
+                             const std::vector<SpecificField>& field_path);
 
-    void ReportMoved(const Message& message1, const Message& message2,
-                     const std::vector<SpecificField>& field_path) override;
+    virtual void ReportMatched(const Message& message1,
+                               const Message& message2,
+                               const std::vector<SpecificField>& field_path);
 
-    void ReportMatched(const Message& message1, const Message& message2,
-                       const std::vector<SpecificField>& field_path) override;
+    virtual void ReportIgnored(const Message& message1,
+                               const Message& message2,
+                               const std::vector<SpecificField>& field_path);
 
-    void ReportIgnored(const Message& message1, const Message& message2,
-                       const std::vector<SpecificField>& field_path) override;
-
-    void ReportUnknownFieldIgnored(
+    virtual void ReportUnknownFieldIgnored(
         const Message& message1, const Message& message2,
-        const std::vector<SpecificField>& field_path) override;
+        const std::vector<SpecificField>& field_path);
 
    protected:
     // Prints the specified path of fields to the buffer.  message is used to
@@ -682,9 +680,8 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
   class LIBPROTOBUF_EXPORT MapEntryKeyComparator : public MapKeyComparator {
    public:
     explicit MapEntryKeyComparator(MessageDifferencer* message_differencer);
-    bool IsMatch(
-        const Message& message1, const Message& message2,
-        const std::vector<SpecificField>& parent_fields) const override;
+    virtual bool IsMatch(const Message& message1, const Message& message2,
+                         const std::vector<SpecificField>& parent_fields) const;
 
    private:
     MessageDifferencer* message_differencer_;
@@ -714,7 +711,8 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
 
   // Compares all the unknown fields in two messages.
   bool CompareUnknownFields(const Message& message1, const Message& message2,
-                            const UnknownFieldSet&, const UnknownFieldSet&,
+                            const google::protobuf::UnknownFieldSet&,
+                            const google::protobuf::UnknownFieldSet&,
                             std::vector<SpecificField>* parent_fields);
 
   // Compares the specified messages for the requested field lists. The field
@@ -861,7 +859,6 @@ class LIBPROTOBUF_EXPORT MessageDifferencer {
 
   bool report_matches_;
   bool report_moves_;
-  bool report_ignores_;
 
   string* output_string_;
 
@@ -885,8 +882,8 @@ class LIBPROTOBUF_EXPORT FieldContext {
   std::vector<MessageDifferencer::SpecificField>* parent_fields_;
 };
 
-}  // namespace util
-}  // namespace protobuf
-}  // namespace google
+}
+}
 
+}  // namespace google
 #endif  // GOOGLE_PROTOBUF_UTIL_MESSAGE_DIFFERENCER_H__

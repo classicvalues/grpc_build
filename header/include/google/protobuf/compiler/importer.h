@@ -96,13 +96,12 @@ class LIBPROTOBUF_EXPORT SourceTreeDescriptorDatabase : public DescriptorDatabas
   }
 
   // implements DescriptorDatabase -----------------------------------
-  bool FindFileByName(const string& filename,
-                      FileDescriptorProto* output) override;
+  bool FindFileByName(const string& filename, FileDescriptorProto* output);
   bool FindFileContainingSymbol(const string& symbol_name,
-                                FileDescriptorProto* output) override;
+                                FileDescriptorProto* output);
   bool FindFileContainingExtension(const string& containing_type,
                                    int field_number,
-                                   FileDescriptorProto* output) override;
+                                   FileDescriptorProto* output);
 
  private:
   class SingleFileErrorCollector;
@@ -116,13 +115,17 @@ class LIBPROTOBUF_EXPORT SourceTreeDescriptorDatabase : public DescriptorDatabas
     ~ValidationErrorCollector();
 
     // implements ErrorCollector ---------------------------------------
-    void AddError(const string& filename, const string& element_name,
-                  const Message* descriptor, ErrorLocation location,
-                  const string& message) override;
+    void AddError(const string& filename,
+                  const string& element_name,
+                  const Message* descriptor,
+                  ErrorLocation location,
+                  const string& message);
 
-    void AddWarning(const string& filename, const string& element_name,
-                    const Message* descriptor, ErrorLocation location,
-                    const string& message) override;
+    virtual void AddWarning(const string& filename,
+                            const string& element_name,
+                            const Message* descriptor,
+                            ErrorLocation location,
+                            const string& message);
 
    private:
     SourceTreeDescriptorDatabase* owner_;
@@ -290,9 +293,9 @@ class LIBPROTOBUF_EXPORT DiskSourceTree : public SourceTree {
   bool VirtualFileToDiskFile(const string& virtual_file, string* disk_file);
 
   // implements SourceTree -------------------------------------------
-  io::ZeroCopyInputStream* Open(const string& filename) override;
+  virtual io::ZeroCopyInputStream* Open(const string& filename);
 
-  string GetLastErrorMessage() override;
+  virtual string GetLastErrorMessage();
 
  private:
   struct Mapping {
@@ -319,6 +322,6 @@ class LIBPROTOBUF_EXPORT DiskSourceTree : public SourceTree {
 
 }  // namespace compiler
 }  // namespace protobuf
-}  // namespace google
 
+}  // namespace google
 #endif  // GOOGLE_PROTOBUF_COMPILER_IMPORTER_H__

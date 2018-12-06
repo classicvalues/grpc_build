@@ -63,11 +63,10 @@ struct GeneratorOptions {
   bool binary;
   // What style of imports should be used.
   enum ImportStyle {
-    kImportClosure,         // goog.require()
-    kImportCommonJs,        // require()
-    kImportCommonJsStrict,  // require() with no global export
-    kImportBrowser,         // no import statements
-    kImportEs6,             // import { member } from ''
+    kImportClosure,   // goog.require()
+    kImportCommonJs,  // require()
+    kImportBrowser,   // no import statements
+    kImportEs6,       // import { member } from ''
   } import_style;
 
   GeneratorOptions()
@@ -329,6 +328,6 @@ class LIBPROTOC_EXPORT Generator : public CodeGenerator {
 }  // namespace js
 }  // namespace compiler
 }  // namespace protobuf
-}  // namespace google
 
+}  // namespace google
 #endif  // GOOGLE_PROTOBUF_COMPILER_JS_GENERATOR_H__
